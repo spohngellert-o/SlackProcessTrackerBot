@@ -20,8 +20,6 @@ starterbot_id = None
 
 # constants
 RTM_READ_DELAY = 1 # 1 second delay between reading from RTM
-EXAMPLE_COMMAND = "do"
-MENTION_REGEX = "^<@(|[WU].+?)>(.*)"
 pids_tracked = {}
 
 def parse_bot_commands(slack_events):
@@ -68,7 +66,7 @@ def handle_command(command, channel):
 
 def check_tracked_pids():
 	while(True):
-		gone, alive = psutil.wait_procs(pids_tracked.keys(), timeout=1)
+		gone, alive = psutil.wait_procs(pids_tracked.keys(), timeout=0.1)
 		for proc in gone:
 			total_time = int(time.time() - pids_tracked[proc][1])
 			slack_client.api_call(
@@ -76,6 +74,7 @@ def check_tracked_pids():
 			channel=pids_tracked[proc][0],
 			text="Process `{}` with PID `{}` finished after `{}`.".format(pids_tracked[proc][2], proc.pid, str(datetime.timedelta(seconds=total_time))))
 			pids_tracked.pop(proc)
+		time.sleep(1)
 	
 
 
